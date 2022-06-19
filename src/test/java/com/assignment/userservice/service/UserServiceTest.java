@@ -5,6 +5,7 @@ import com.assignment.userservice.dto.UserDto;
 import com.assignment.userservice.entities.User;
 import com.assignment.userservice.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,7 +28,9 @@ public class UserServiceTest {
 
     @BeforeEach
     public void initDependencies(){
-        userService = new UserService(userRepository,new ObjectMapper());
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper.registerModule(new JavaTimeModule());
+        userService = new UserService(userRepository,objectMapper);
     }
 
     @Test
@@ -46,7 +49,7 @@ public class UserServiceTest {
     @Test
     public void testSaveUser_WithSuccess(){
 
-        Mockito.when(userRepository.save(Mockito.any())).thenReturn(Optional.of(UserCreationHelper.populateUser()));
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn(UserCreationHelper.populateUser());
         User user =  userService.saveUser(UserCreationHelper.populateValidUserDto());
 
         Assertions.assertEquals(user.getFirstName(),"Alex");
@@ -59,8 +62,8 @@ public class UserServiceTest {
     @Test
     public void testUpdateUser_WithSuccess(){
 
-        Mockito.when(userRepository.save(Mockito.any())).thenReturn(Optional.of(UserCreationHelper.populateUser()));
-        User user =  userService.saveUser(UserCreationHelper.populateValidUserDto());
+        Mockito.when(userRepository.save(Mockito.any())).thenReturn((UserCreationHelper.populateUser()));
+        User user =  userService.updateUser(UserCreationHelper.populateValidUserDto(),1);
 
         Assertions.assertEquals(user.getFirstName(),"Alex");
         Assertions.assertEquals(user.getLastName(),"Bob");
